@@ -8,16 +8,31 @@ const bodyParser = require("body-parser");
 
 const { HoldingsModel } = require("./model/HoldingsModels");
 const { PositionsModel } = require("./model/PositionsModel");
+const { OrdersModel } = require("./model/OrdersModel");
 
 app.use(cors());
 
 app.use(bodyParser.json());
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.send("Welcome to the backend server!");
 });
 
+app.post("/newOrder", async (req, res) => {
+  let newOrder = new OrdersModel({
+    name: req.body.name,
+    qty: req.body.qty,
+    price: req.body.price,
+    mode: req.body.mode,
+  });
+
+  newOrder.save();
+
+  res.send("Order saved!");
+});
+/*
 app.get("/addHoldings", async (req, res) => {
   let tempHoldings = [
     {
@@ -145,7 +160,9 @@ app.get("/addHoldings", async (req, res) => {
 
   res.send("Holdings added successfully!");
 });
+*/
 
+/*
 app.get("/addPositions", async (req, res) => {
   let tempPositions = [
     {
@@ -185,6 +202,18 @@ app.get("/addPositions", async (req, res) => {
     newPosition.save();
   });
   res.send("Done!");
+});
+
+*/
+
+app.get("/allHoldings", async (req, res) => {
+  let allHoldings = await HoldingsModel.find({});
+  res.json(allHoldings);
+});
+
+app.get("/allPositions", async (req, res) => {
+  let allPositions = await PositionsModel.find({});
+  res.json(allPositions);
 });
 
 mongoose
