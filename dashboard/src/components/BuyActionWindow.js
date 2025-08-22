@@ -12,12 +12,16 @@ const BuyActionWindow = ({ uid }) => {
   const [stockPrice, setStockPrice] = useState(0.0);
 
   const handleBuyClick = () => {
-    axios.post("http://localhost:3000/newOrder", {
-      name: uid,
-      qty: Number(stockQuantity),
-      price: Number(stockPrice),
-      mode: "BUY",
-    });
+    try {
+      axios.post("http://localhost:3000/newOrder", {
+        name: uid,
+        qty: Number(stockQuantity),
+        price: Number(stockPrice),
+        mode: "BUY",
+      });
+    } catch (err) {
+      console.error("Error placing order:", err);
+    }
   };
 
   const handleCancelClick = () => {
@@ -55,9 +59,10 @@ const BuyActionWindow = ({ uid }) => {
       <div className="buttons">
         <span>Margin required ₹140.65</span>
         <div>
-          <Link className="btn btn-blue" onClick={handleBuyClick}>
+          <button className="btn btn-blue" onClick={handleBuyClick}>
             Buy
-          </Link>
+          </button>
+
           <Link to="" className="btn btn-grey" onClick={handleCancelClick}>
             Cancel
           </Link>

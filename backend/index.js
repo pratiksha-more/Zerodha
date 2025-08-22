@@ -10,6 +10,14 @@ const { HoldingsModel } = require("./model/HoldingsModels");
 const { PositionsModel } = require("./model/PositionsModel");
 const { OrdersModel } = require("./model/OrdersModel");
 
+const { authMiddleware, requireRole } = require("./middleware/auth");
+
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { UserModel } = require("./model/UserModel");
+
+const JWT_SECRET = "your_secret_key";
+
 app.use(cors());
 
 app.use(bodyParser.json());
@@ -20,7 +28,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to the backend server!");
 });
 
-app.post("/newOrder", async (req, res) => {
+app.post("/newOrder", authMiddleware, async (req, res) => {
   let newOrder = new OrdersModel({
     name: req.body.name,
     qty: req.body.qty,
@@ -28,9 +36,36 @@ app.post("/newOrder", async (req, res) => {
     mode: req.body.mode,
   });
 
-  newOrder.save();
+  try {
+    await newOrder.save();
+    res.send("Order saved!");
+  } catch (err) {
+    console.error(err); // check the actual error
+    res.status(500).send("Internal Server Error");
+  }
+});
 
-  res.send("Order saved!");
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+  const hashed = await bcrypt.hash(password, 10);
+  try {
+    const user = await UserModel.create({ username, password: hashed });
+    res.json({ message: "User registered", user });
+  } catch (err) {
+    res.status(400).json({ error: "User already exists" });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const user = await UserModel.findOne({ username });
+  if (!user) return res.status(401).json({ error: "Invalid credentials" });
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return res.status(401).json({ error: "Invalid credentials" });
+  const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
+    expiresIn: "1h",
+  });
+  res.json({ token });
 });
 /*
 app.get("/addHoldings", async (req, res) => {
