@@ -40,7 +40,7 @@ app.post("/newOrder", authMiddleware, async (req, res) => {
     await newOrder.save();
     res.send("Order saved!");
   } catch (err) {
-    console.error(err); // check the actual error
+    console.error(err); 
     res.status(500).send("Internal Server Error");
   }
 });
