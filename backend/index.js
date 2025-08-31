@@ -10,13 +10,7 @@ const { HoldingsModel } = require("./model/HoldingsModels");
 const { PositionsModel } = require("./model/PositionsModel");
 const { OrdersModel } = require("./model/OrdersModel");
 
-const { authMiddleware, requireRole } = require("./middleware/auth");
-
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { UserModel } = require("./model/UserModel");
-
-const JWT_SECRET = "your_secret_key";
+const authMiddleware = require("./middleware/auth");
 
 app.use(cors());
 
@@ -40,33 +34,15 @@ app.post("/newOrder", authMiddleware, async (req, res) => {
     await newOrder.save();
     res.send("Order saved!");
   } catch (err) {
-    console.error(err); 
+    console.error(err);
     res.status(500).send("Internal Server Error");
   }
 });
 
-app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  try {
-    const user = await UserModel.create({ username, password: hashed });
-    res.json({ message: "User registered", user });
-  } catch (err) {
-    res.status(400).json({ error: "User already exists" });
-  }
-});
+app.post("/signUp", SignUp);
 
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  const user = await UserModel.findOne({ username });
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(401).json({ error: "Invalid credentials" });
-  const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
-    expiresIn: "1h",
-  });
-  res.json({ token });
-});
+app.post("/logIn", LogIn);
+
 /*
 app.get("/addHoldings", async (req, res) => {
   let tempHoldings = [
@@ -246,6 +222,11 @@ app.get("/allHoldings", async (req, res) => {
   res.json(allHoldings);
 });
 
+app.get("/watchlist", async (req, res) => {
+  let watchlistData = await WatchlistModel.find({});
+  res.json(watchlistData);
+});
+
 app.get("/allPositions", async (req, res) => {
   let allPositions = await PositionsModel.find({});
   res.json(allPositions);
@@ -254,11 +235,11 @@ app.get("/allPositions", async (req, res) => {
 mongoose
   .connect(uri)
   .then(() => {
-    console.log("✅ DB connected!");
+    console.log("DB connected!");
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ DB connection error:", err);
+    console.error(" DB connection error:", err);
   });

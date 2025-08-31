@@ -11,6 +11,8 @@ import ProductPage from "./landing_pages/products/ProductPage";
 import PricingPage from "./landing_pages/pricing/PricingPage";
 import SupportPage from "./landing_pages/support/SupportPage";
 
+import Login from "./landing_pages/login/Login";
+
 import Navbar from "./landing_pages/Navbar";
 import Footer from "./landing_pages/Footer";
 import NotFound from "./landing_pages/NotFound";
@@ -22,6 +24,7 @@ root.render(
     <Routes>
       <Route path="/" element={<HomePage />} />
 
+      <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/product" element={<ProductPage />} />

@@ -2,7 +2,7 @@ import React from "react";
 
 function OpenAccount() {
   return (
-    <div className="container">
+    <div className="container pb-5">
       <div className="row text-center">
         <h1 className="mt-5">Open a Zerodha account</h1>
         <p>
